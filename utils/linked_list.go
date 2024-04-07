@@ -1,11 +1,14 @@
 package utils
 
+import "sync"
+
 type Node[T string | int] struct {
 	value T
 	next  *Node[T]
 }
 
 type LinkedList[T string | int] struct {
+	mu   sync.Mutex
 	head *Node[T]
 	tail *Node[T]
 	Size int `default:"0"`
@@ -31,6 +34,8 @@ func findNewTail[T string | int](list *LinkedList[T]) *Node[T] {
 }
 
 func Push[T string | int](list *LinkedList[T], value T) {
+	list.mu.Lock()
+
 	var newNode = &Node[T]{
 		value: value,
 		next:  nil,
@@ -46,9 +51,12 @@ func Push[T string | int](list *LinkedList[T], value T) {
 		list.Size++
 	}
 
+	list.mu.Unlock()
 }
 
 func InsertAfter[T string | int](list *LinkedList[T], o T, after T) {
+	list.mu.Lock()
+
 	var newNode = &Node[T]{
 		value: o,
 		next:  nil,
@@ -65,9 +73,13 @@ func InsertAfter[T string | int](list *LinkedList[T], o T, after T) {
 		newNode.next = oldNext
 		list.Size++
 	}
+
+	list.mu.Unlock()
 }
 
 func Pop[T string | int](list *LinkedList[T]) T {
+	list.mu.Lock()
+
 	var toReturn T
 	switch list.Size {
 	case 0:
@@ -85,6 +97,7 @@ func Pop[T string | int](list *LinkedList[T]) T {
 		list.Size--
 	}
 
+	list.mu.Unlock()
 	return toReturn
 }
 
